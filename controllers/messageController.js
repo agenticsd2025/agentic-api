@@ -1,74 +1,26 @@
-// controllers/messageController.js
-const { messages } = require('../data/messageStore');
+const Message = require('../models/Message');
 
-const getMessages = (req, res) => {
-  const { name } = req.query;
-  let filtered = messages;
-
-  if (name) {
-    filtered = messages.filter(msg =>
-      msg.name.toLowerCase() === name.toLowerCase()
-    );
-  }
-
-  res.json({
-    total: filtered.length,
-    messages: filtered
-  });
+let getMessages = async (req, res) => {
+  const messages = await Message.find();
+  res.json(messages);
 };
 
-const postMessage = (req, res) => {
-  const data = req.body;
-  const entry = {
-    id: messages.length + 1,
-    ...data,
-    timestamp: new Date().toISOString()
-  };
-
-  messages.push(entry);
-
-  res.json({
-    message: 'Message received and stored',
-    entry
-  });
+let postMessage = async (req, res) => {
+  const { name, message } = req.body;
+  const newMessage = await Message.create({ name, message });
+  res.status(201).json(newMessage);
 };
 
-const updateMessage = (req, res) => {
-  const { id } = req.params;
-  const updatedData = req.body;
-
-  const index = messages.findIndex(msg => msg.id === parseInt(id));
-
-  if (index === -1) {
-    return res.status(404).json({ message: 'Message not found' });
-  }
-
-  messages[index] = {
-    ...messages[index],
-    ...updatedData,
-    updatedAt: new Date().toISOString()
-  };
-
-  res.json({
-    message: 'Message updated',
-    updated: messages[index]
-  });
+let updateMessage = async (req, res) => {
+  const updated = await Message.findByIdAndUpdate(req.params.id, req.body, { new: true });
+  if (!updated) return res.status(404).json({ message: 'Not found' });
+  res.json(updated);
 };
 
-const deleteMessage = (req, res) => {
-  const { id } = req.params;
-  const index = messages.findIndex(msg => msg.id === parseInt(id));
-
-  if (index === -1) {
-    return res.status(404).json({ message: 'Message not found' });
-  }
-
-  const deleted = messages.splice(index, 1);
-
-  res.json({
-    message: 'Message deleted',
-    deleted
-  });
+let deleteMessage = async (req, res) => {
+  const deleted = await Message.findByIdAndDelete(req.params.id);
+  if (!deleted) return res.status(404).json({ message: 'Not found' });
+  res.json({ message: 'Deleted' });
 };
 
 module.exports = {
