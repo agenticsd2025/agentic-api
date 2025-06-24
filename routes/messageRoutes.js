@@ -2,7 +2,7 @@
 const express = require('express');
 const router = express.Router();
 
-const apiKeyAuth = require('../middleware/apiKeyAuth');
+// const apiKeyAuth = require('../middleware/apiKeyAuth');
 const {
   getMessages,
   postMessage,
@@ -11,7 +11,7 @@ const {
 } = require('../controllers/messageController');
 
 // Protect all routes
-router.use(apiKeyAuth);
+// router.use(apiKeyAuth);
 
 router.get('/messages', getMessages);
 router.post('/submit', postMessage);
